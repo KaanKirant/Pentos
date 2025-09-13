@@ -32,6 +32,7 @@ void APentosPlayerController::SetupInputComponent()
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APentosPlayerController::Move);
+	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APentosPlayerController::Look);
 }
 
 void APentosPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -47,6 +48,16 @@ void APentosPlayerController::Move(const FInputActionValue& InputActionValue)
 	{
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
+	}
+}
+
+void APentosPlayerController::Look(const FInputActionValue& InputActionValue)
+{
+	const FVector2D LookingVector = InputActionValue.Get<FVector2D>();
+	if (APawn* ControlledPawn = GetPawn<APawn>())
+	{
+		ControlledPawn->AddControllerYawInput(LookingVector.X);
+		ControlledPawn->AddControllerPitchInput(LookingVector.Y);
 	}
 }
 
