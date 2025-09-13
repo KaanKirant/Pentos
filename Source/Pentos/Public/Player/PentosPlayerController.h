@@ -6,7 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "PentosPlayerController.generated.h"
 
+class UInputAction;
 class UInputMappingContext;
+struct FInputActionValue;
 
 /**
  * 
@@ -19,8 +21,15 @@ public:
 	APentosPlayerController();
 protected:
 	virtual void BeginPlay() override;
+	void AddMappingContext();
 	virtual void OnRep_Pawn() override;
+	virtual void SetupInputComponent() override;
 private:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputMappingContext> PentosContext;
+
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> MoveAction;
+
+	void Move(const FInputActionValue& InputActionValue);
 };
