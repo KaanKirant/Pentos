@@ -19,6 +19,7 @@ public:
 	APentosPlayerController();
 protected:
 	virtual void BeginPlay() override;
+	virtual void OnRep_Pawn() override;
 private:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputMappingContext> PentosContext;

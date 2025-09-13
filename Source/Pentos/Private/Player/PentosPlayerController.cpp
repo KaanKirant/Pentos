@@ -12,9 +12,14 @@ APentosPlayerController::APentosPlayerController()
 void APentosPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	check(PentosContext);
+}
 
+void APentosPlayerController::OnRep_Pawn()
+{
+	Super::OnRep_Pawn();
+	check(PentosContext);
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	
 	check(Subsystem);
 	Subsystem->AddMappingContext(PentosContext, 0);
 }
