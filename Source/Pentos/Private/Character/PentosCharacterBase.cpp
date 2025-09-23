@@ -6,7 +6,6 @@
 APentosCharacterBase::APentosCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
 }
 
 void APentosCharacterBase::BeginPlay()
