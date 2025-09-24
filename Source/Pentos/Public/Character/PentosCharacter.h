@@ -16,6 +16,7 @@ class PENTOS_API APentosCharacter : public APentosCharacterBase
 	GENERATED_BODY()
 public:
 	APentosCharacter();
+	virtual void PossessedBy(AController* NewController) override;
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> Camera;
