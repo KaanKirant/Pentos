@@ -7,7 +7,6 @@
 #include "Character/PentosCharacter.h"
 #include "Interaction/InteractInterface.h"
 #include "Camera/CameraComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 APentosPlayerController::APentosPlayerController()
 {
@@ -99,11 +98,16 @@ void APentosPlayerController::PerformTraceLine()
 	Params.AddIgnoredActor(this);
 	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params, FCollisionResponseParams());
 	DrawDebugLine(GetWorld(),Start,End, FColor::Red, false, 0.1f, 0, 0.1f);
-	if (!HitResult.bBlockingHit) return;
-	UE_LOG(LogTemp, Warning, TEXT("Actor: %s"), *HitResult.GetActor()->GetName());
-	
-	LastActor = ThisActor;
-	ThisActor = HitResult.GetActor();
+	if (!HitResult.bBlockingHit)
+	{
+		ThisActor = nullptr;
+	}
+	else
+	{
+		LastActor = ThisActor;
+		ThisActor = HitResult.GetActor();
+		UE_LOG(LogTemp, Warning, TEXT("Actor: %s"), *HitResult.GetActor()->GetName());
+	}
 	
 	/*
 	 * Line trace from player. There are several scenairos:
