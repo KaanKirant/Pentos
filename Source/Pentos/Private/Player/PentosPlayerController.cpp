@@ -7,6 +7,7 @@
 #include "Character/PentosCharacter.h"
 #include "Interaction/InteractInterface.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 APentosPlayerController::APentosPlayerController()
 {
@@ -91,13 +92,13 @@ void APentosPlayerController::AddMappingContext()
 void APentosPlayerController::PerformTraceLine()
 {
 	const FVector Start = PlayerCharacter->GetCamera()->GetComponentLocation();
-	FVector End = Start + PlayerCharacter->GetCamera()->GetForwardVector() * 500.f;
+	const FVector End = Start + PlayerCharacter->GetCamera()->GetForwardVector() * 500.f;
 	
 	FHitResult HitResult;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params, FCollisionResponseParams());
-	DrawDebugLine(GetWorld(),Start,End, FColor::Red, false, 0.1f, 0, 1.f);
+	DrawDebugLine(GetWorld(),Start,End, FColor::Red, false, 0.1f, 0, 0.1f);
 	if (!HitResult.bBlockingHit) return;
 	UE_LOG(LogTemp, Warning, TEXT("Actor: %s"), *HitResult.GetActor()->GetName());
 	
@@ -123,13 +124,11 @@ void APentosPlayerController::PerformTraceLine()
 		if (ThisActor != nullptr)
 		{
 			//Case B
-			UE_LOG(LogTemp, Warning, TEXT("Case B"));
 			ThisActor->ActivateInteractMessage();
 			ThisActor->HighlightActor();
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Case A"));
 			// Case A - Do nothing.
 		}
 	}
@@ -138,7 +137,6 @@ void APentosPlayerController::PerformTraceLine()
 		if (ThisActor == nullptr)
 		{
 			// Case C
-			UE_LOG(LogTemp, Warning, TEXT("Case C"));
 			LastActor->DeactivateInteractMessage();
 			LastActor->UnHighlightActor();
 		}
@@ -147,7 +145,6 @@ void APentosPlayerController::PerformTraceLine()
 			if (LastActor != ThisActor)
 			{
 				// Case D
-				UE_LOG(LogTemp, Warning, TEXT("Case D"));
 				LastActor->DeactivateInteractMessage();
 				LastActor->UnHighlightActor();
 				ThisActor->ActivateInteractMessage();
@@ -155,7 +152,6 @@ void APentosPlayerController::PerformTraceLine()
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Case E"));
 				// Case E - Do nothing
 			}
 		}

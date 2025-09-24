@@ -10,11 +10,13 @@ AAppleActor::AAppleActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
+	StaticMesh->SetRenderCustomDepth(false);
 	SetRootComponent(StaticMesh);
 
 	InteractWidget = CreateDefaultSubobject<UWidgetComponent>("InteractWidget");
 	InteractWidget->SetupAttachment(GetRootComponent());
 	InteractWidget->SetVisibility(false);
+
 }
 
 void AAppleActor::BeginPlay()
