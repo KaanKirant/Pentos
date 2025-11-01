@@ -7,6 +7,10 @@
 
 APentosCharacter::APentosCharacter()
 {
+	bReplicates = true;
+	SetReplicateMovement(true);
+	SetNetUpdateFrequency(100.f);
+	SetMinNetUpdateFrequency(33.f);
 	Camera = CreateDefaultSubobject<UCameraComponent>("Camera");
 	Camera->SetupAttachment(GetRootComponent());
 }

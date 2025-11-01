@@ -38,6 +38,9 @@ private:
 	UPROPERTY(EditAnywhere, Category="Input")
 	TObjectPtr<UInputAction> LookAction;
 
+	UPROPERTY(EditAnywhere, Category="Input")
+	TObjectPtr<UInputAction> InteractAction;
+
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<APentosCharacter> PlayerCharacter;
 
@@ -46,4 +49,10 @@ private:
 	
 	void Move(const FInputActionValue& InputActionValue);
 	void Look(const FInputActionValue& InputActionValue);
+
+	void TryToInteract();
+	
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* ActorToInteract);
+	
 };

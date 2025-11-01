@@ -11,6 +11,7 @@
 APentosPlayerController::APentosPlayerController()
 {
 	bReplicates = true;
+	SetReplicateMovement(false);
 }
 
 void APentosPlayerController::PlayerTick(float DeltaTime)
@@ -51,6 +52,8 @@ void APentosPlayerController::SetupInputComponent()
 
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APentosPlayerController::Move);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APentosPlayerController::Look);
+	EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &APentosPlayerController::TryToInteract);
+	
 }
 
 void APentosPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -79,6 +82,34 @@ void APentosPlayerController::Look(const FInputActionValue& InputActionValue)
 	}
 }
 
+void APentosPlayerController::TryToInteract()
+{
+	UE_LOG(LogTemp, Warning, TEXT("TryToInteract() called on %s | Authority: %s"),
+	*GetName(), HasAuthority() ? TEXT("Server") : TEXT("Client"));
+	if (IsLocalController() && ThisActor)
+	{
+		if (AActor* ActorToInteract = Cast<AActor>(ThisActor.GetObject()))
+		{
+			ServerInteract(ActorToInteract);	
+		}
+	}
+}
+
+void APentosPlayerController::ServerInteract_Implementation(AActor* ActorToInteract)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ServerInteract_Implementation() executed on %s | Authority: %s"),
+	*GetName(), HasAuthority() ? TEXT("Server") : TEXT("Client"));
+	if (!ActorToInteract) return;
+	
+	PlayerCharacter = Cast<APentosCharacter>(GetPawn());
+	if (!PlayerCharacter) return;
+	
+	if (IInteractInterface* Interactable = Cast<IInteractInterface>(ActorToInteract))
+	{
+		Interactable->Interact(PlayerCharacter); //Reference for optimization?
+	}
+}
+
 void APentosPlayerController::AddMappingContext()
 {
 	check(PentosContext);
@@ -97,7 +128,7 @@ void APentosPlayerController::PerformTraceLine()
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params, FCollisionResponseParams());
-	DrawDebugLine(GetWorld(),Start,End, FColor::Red, false, 0.1f, 0, 0.1f);
+	//DrawDebugLine(GetWorld(),Start,End, FColor::Red, false, 0.1f, 0, 0.1f);
 	if (!HitResult.bBlockingHit)
 	{
 		ThisActor = nullptr;
@@ -106,7 +137,7 @@ void APentosPlayerController::PerformTraceLine()
 	{
 		LastActor = ThisActor;
 		ThisActor = HitResult.GetActor();
-		UE_LOG(LogTemp, Warning, TEXT("Actor: %s"), *HitResult.GetActor()->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Actor: %s"), *HitResult.GetActor()->GetName());
 	}
 	
 	/*

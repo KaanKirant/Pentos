@@ -16,6 +16,7 @@ class PENTOS_API AAppleActor : public AActor, public IInteractInterface
 	
 public:	
 	AAppleActor();
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	
 	UPROPERTY(VisibleAnywhere)
 	UWidgetComponent* InteractWidget;
@@ -25,11 +26,20 @@ public:
 	virtual void DeactivateInteractMessage() override;
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
-	virtual void Interact() override;
+	virtual void Interact(ACharacter* InteractInstigator) override;
 	/** End Interact Interface */
 protected:
 	virtual void BeginPlay() override;
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
+	
+	UPROPERTY(Replicated)
+	bool IsPicked = false;
+
+	UPROPERTY(ReplicatedUsing=OnRep_AttachedCharacter)
+	ACharacter* AttachedCharacter;
+
+	UFUNCTION()
+	void OnRep_AttachedCharacter();
 };

@@ -24,5 +24,5 @@ public:
 	virtual void DeactivateInteractMessage() = 0;
 	virtual void HighlightActor() = 0;
 	virtual void UnHighlightActor() = 0;
-	virtual void Interact() = 0;
+	virtual void Interact(ACharacter* InteractInstigator) = 0;
 };
