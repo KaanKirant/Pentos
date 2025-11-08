@@ -6,21 +6,39 @@
 #include "GameFramework/Actor.h"
 #include "OrderManager.generated.h"
 
+class UImage;
+class AItem;
+
+USTRUCT()
+struct FOrder
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	TArray<AItem*> Items;
+
+	UPROPERTY(EditAnywhere)
+	FName OrderName;
+
+	UPROPERTY(EditAnywhere)
+	UImage* OrderImage;
+	
+	UPROPERTY(VisibleAnywhere)
+	bool IsOrderServed = false;
+};
+
 UCLASS()
 class PENTOS_API AOrderManager : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	AOrderManager();
+	
+	UPROPERTY(EditAnywhere, Category="Order")
+	TArray<FOrder> OrderList;
 
+	FOrder GetRandomOrder();
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };

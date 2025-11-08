@@ -6,22 +6,22 @@
 // Sets default values
 AOrderManager::AOrderManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
 void AOrderManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
-void AOrderManager::Tick(float DeltaTime)
+FOrder AOrderManager::GetRandomOrder()
 {
-	Super::Tick(DeltaTime);
-
+	if (OrderList.Num() > 0)
+	{
+		return OrderList[FMath::RandRange(0, OrderList.Num() - 1)];
+	}
+	else
+	{
+		return FOrder();
+	}
 }
-

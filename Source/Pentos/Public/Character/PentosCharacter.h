@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Actors/Order/OrderManager.h"
 #include "Character/PentosCharacterBase.h"
 #include "PentosCharacter.generated.h"
 
@@ -20,6 +21,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	AActor* CarriedItem;
+	
+	UPROPERTY(VisibleAnywhere)
+	TArray<FOrder> OrderList;
 private:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UCameraComponent> Camera;

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Actors/Order/OrderManager.h"
 #include "Actors/Queue/QueueArea.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
 #include "Character/PentosCharacterBase.h"
@@ -29,6 +30,12 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="AI")
 	AQueueArea* QueueArea;
+
+	UPROPERTY(EditAnywhere, Category="Order")
+	AOrderManager* OrderManager;
+
+	UPROPERTY(VisibleAnywhere)
+	FOrder Order;
 
 	FWaitPoint* WaitPoint = nullptr;
 	
