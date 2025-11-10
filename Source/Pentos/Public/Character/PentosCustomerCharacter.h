@@ -10,6 +10,7 @@
 #include "Interaction/InteractInterface.h"
 #include "PentosCustomerCharacter.generated.h"
 
+class ATableActor;
 class UWidgetComponent;
 class UBehaviorTree;
 class APentosAIController;
@@ -31,8 +32,17 @@ public:
 	UPROPERTY(EditAnywhere, Category="AI")
 	AQueueArea* QueueArea;
 
+	UPROPERTY(EditAnywhere, Category="AI")
+	TSubclassOf<AQueueArea> QueueAreaClass;
+
 	UPROPERTY(EditAnywhere, Category="Order")
 	AOrderManager* OrderManager;
+
+	UPROPERTY(EditAnywhere, Category="Order")
+	TSubclassOf<AOrderManager> OrderManagerClass;
+
+	UPROPERTY(EditAnywhere)
+	ATableActor* CurrentTable = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 	FOrder Order;

@@ -5,7 +5,7 @@
 
 AItem::AItem()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	ItemStaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	ItemStaticMesh->SetupAttachment(GetRootComponent());
 }

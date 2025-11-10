@@ -4,12 +4,14 @@
 #include "Character/PentosCustomerCharacter.h"
 
 #include "Actors/Order/OrderManager.h"
+#include "Actors/Props/TableActor.h"
 #include "Actors/Queue/QueueArea.h"
 #include "AI/PentosAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/PentosCharacter.h"
 #include "Components/WidgetComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Pentos/Pentos.h"
 
 APentosCustomerCharacter::APentosCustomerCharacter()
@@ -24,6 +26,9 @@ APentosCustomerCharacter::APentosCustomerCharacter()
 	InteractWidget = CreateDefaultSubobject<UWidgetComponent>("InteractWidget");
 	InteractWidget->SetupAttachment(GetRootComponent());
 	InteractWidget->SetVisibility(false);
+
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	AIControllerClass = APentosCustomerCharacter::StaticClass();
 }
 
 void APentosCustomerCharacter::PossessedBy(AController* NewController)
@@ -31,24 +36,24 @@ void APentosCustomerCharacter::PossessedBy(AController* NewController)
 	Super::PossessedBy(NewController);
 
 	if (!HasAuthority()) return;
+	UE_LOG(LogTemp, Warning, TEXT("APentosCustomerCharacter::PossessedBy"));
 	PentosAIController = Cast<APentosAIController>(NewController);
 
 	PentosAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
 	PentosAIController->RunBehaviorTree(BehaviorTree);
 	if (OrderManager)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("APentosCustomerCharacter::PossessedBy"));
-		
-	}
 		Order = OrderManager->GetRandomOrder();
+	}
 }
 
 void APentosCustomerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	QueueArea = Cast<AQueueArea>(UGameplayStatics::GetActorOfClass(GetWorld(), QueueAreaClass));
+	OrderManager = Cast<AOrderManager>(UGameplayStatics::GetActorOfClass(GetWorld(), OrderManagerClass));
 	if (OrderManager)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("APentosCustomerCharacter::BeginPlay"));
 		Order = OrderManager->GetRandomOrder();
 	}
 		
@@ -85,9 +90,18 @@ void APentosCustomerCharacter::Interact(ACharacter* InteractInstigator)
 		PlayerCharacter->OrderList.Add(Order);
 		PentosAIController->GetBlackboardComponent()->SetValueAsBool("IsServed", true); //KeyName should be ordertaken not served.
 		QueueArea->LeaveQueue(WaitPoint);
+		
+		CurrentTable = Cast<ATableActor>(PentosAIController->GetBlackboardComponent()->GetValueAsObject("ClosestTableActor"));
+		if (CurrentTable)
+		{
+			CurrentTable->IsAvailable = false;
+			PentosAIController->GetBlackboardComponent()->SetValueAsBool("ClosestTableIsAvailable", CurrentTable->IsAvailable);
+		}
 	}
-
-	//TODO: Serve
+	if (CurrentTable)
+	{
+		//TODO: if already at a table -> Serve
+	}
 }
 
 
