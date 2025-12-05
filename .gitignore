@@ -2,6 +2,8 @@
 Intermediate/
 Saved/
 DerivedDataCache/
+# Ignore Builds
+Build/
 
 # Ignore binaries
 Binaries/
