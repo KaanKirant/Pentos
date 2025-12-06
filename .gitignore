@@ -29,3 +29,6 @@ Platforms/
 
 # Ignore .vsconfig
 .vsconfig
+
+# Ignore steamppid
+steam_appid.txt
