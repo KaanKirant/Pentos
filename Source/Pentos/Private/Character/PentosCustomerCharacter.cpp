@@ -4,8 +4,10 @@
 #include "Character/PentosCustomerCharacter.h"
 
 #include "Actors/Order/OrderManager.h"
+#include "Actors/Props/PlateActor.h"
 #include "Actors/Props/TableActor.h"
 #include "Actors/Queue/QueueArea.h"
+#include "AI/CustomerAIComponent.h"
 #include "AI/PentosAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -29,6 +31,8 @@ APentosCustomerCharacter::APentosCustomerCharacter()
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = APentosCustomerCharacter::StaticClass();
+
+	CustomerAI = CreateDefaultSubobject<UCustomerAIComponent>(TEXT("CustomerAI"));
 }
 
 void APentosCustomerCharacter::PossessedBy(AController* NewController)
@@ -52,11 +56,13 @@ void APentosCustomerCharacter::BeginPlay()
 	Super::BeginPlay();
 	QueueArea = Cast<AQueueArea>(UGameplayStatics::GetActorOfClass(GetWorld(), QueueAreaClass));
 	OrderManager = Cast<AOrderManager>(UGameplayStatics::GetActorOfClass(GetWorld(), OrderManagerClass));
+	SpawnManager = Cast<ASpawnManager>(UGameplayStatics::GetActorOfClass(GetWorld(), SpawnManagerClass));
 	if (OrderManager)
 	{
 		Order = OrderManager->GetRandomOrder();
 	}
-		
+	if (QueueArea)
+		CustomerAI->SetState(ECustomerState::Entering);
 }
 
 void APentosCustomerCharacter::ActivateInteractMessage()
@@ -84,23 +90,45 @@ void APentosCustomerCharacter::UnHighlightActor()
 
 void APentosCustomerCharacter::Interact(ACharacter* InteractInstigator)
 {
+	
+	//if (PentosAIController->GetBlackboardComponent()->GetValueAsBool("IsSatDown")) // && CurrentTable->Customer = this (Customer should be child of the table when they arrive to the table) (So player cannot take order while customer is going to the table)
+	if (CurrentTable != nullptr)
+	{
+		CustomerAI->SetState(ECustomerState::Eating);
+		// If already at a table -> Serve
+		APentosCharacter* PlayerCharacter = Cast<APentosCharacter>(InteractInstigator);
+		UE_LOG(LogTemp, Warning, TEXT("APentosCustomerCharacter::Interact-Table, CustomerName: %s"), *this->GetName());
+		//PentosAIController->GetBlackboardComponent()->SetValueAsBool("IsOrderTaken", true);
+		if (APlateActor* PlayerPlate = Cast<APlateActor>( PlayerCharacter->CarriedItem))
+		{
+			if (PlayerPlate->PlateItems == Order.Items)
+			{
+				//Same items in the plate and in the order so give the plate to the customer
+				
+			}
+			else
+			{
+				//Missing items in the order
+			}
+			
+		}
+		return;
+	}
+	
+	//If the customer have a waitpoint to go they cannot search for better one. Make a delegate to let other customer know that someone moved in the queue.
+	
 	if (QueueArea->IsFirstPoint(WaitPoint))
 	{
+		UE_LOG(LogTemp, Warning, TEXT("APentosCustomerCharacter::Interact-Queue, CustomerName: %s"), *this->GetName());
+		//CurrentTable = Cast<ATableActor>(PentosAIController->GetBlackboardComponent()->GetValueAsObject("ClosestTableActor"));
+		//if (CurrentTable == nullptr) return;
+		
 		APentosCharacter* PlayerCharacter = Cast<APentosCharacter>(InteractInstigator);
 		PlayerCharacter->OrderList.Add(Order);
-		PentosAIController->GetBlackboardComponent()->SetValueAsBool("IsServed", true); //KeyName should be ordertaken not served.
-		QueueArea->LeaveQueue(WaitPoint);
-		
-		CurrentTable = Cast<ATableActor>(PentosAIController->GetBlackboardComponent()->GetValueAsObject("ClosestTableActor"));
-		if (CurrentTable)
-		{
-			CurrentTable->IsAvailable = false;
-			PentosAIController->GetBlackboardComponent()->SetValueAsBool("ClosestTableIsAvailable", CurrentTable->IsAvailable);
-		}
-	}
-	if (CurrentTable)
-	{
-		//TODO: if already at a table -> Serve
+		CustomerAI->SetState(ECustomerState::WaitingForTable);
+		//PentosAIController->GetBlackboardComponent()->SetValueAsBool("IsOrderTaken", true); // Change it to EKeyPressed?
+		//QueueArea->MoveQueue();
+		//QueueArea->LeaveQueue(WaitPoint);
 	}
 }
 

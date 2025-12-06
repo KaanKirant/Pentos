@@ -24,7 +24,9 @@ EBTNodeResult::Type UBTT_GetQueuePoint::ExecuteTask(UBehaviorTreeComponent& Owne
 	if (!QueueArea) return EBTNodeResult::Failed;
 	
 	FWaitPoint* WaitPoint = QueueArea->GetFirstAvailableWaitPoint();
-	
+
+	if (WaitPoint == nullptr) return EBTNodeResult::Failed;
+	/*
 	if (Customer->WaitPoint) //Did customer had its first target?
 	{
 		//Yes customer has a target.
@@ -34,9 +36,13 @@ EBTNodeResult::Type UBTT_GetQueuePoint::ExecuteTask(UBehaviorTreeComponent& Owne
 		}
 		else // Customer has a point but there is a better point.
 		{
+			//if ((Customer->WaitPoint->PointIndex - WaitPoint->PointIndex) > 1) return EBTNodeResult::Failed;
 			Customer->WaitPoint->IsAvailable = true; // Change customers previous spot to available
+			Customer->WaitPoint->CurrentCustomer = nullptr;
 			Customer->WaitPoint = WaitPoint; // Assign the customer the new spot
-			Customer->WaitPoint->IsAvailable = false; // Change the new spots availability.
+			Customer->WaitPoint->IsAvailable = false;
+			Customer->WaitPoint->CurrentCustomer = Customer;
+			// Change the new spots availability.
 			const FVector TargetPoint = WaitPoint->PointLocation; // Get the new spots location
 			const int32 TargetIndex = WaitPoint->PointIndex;
 			const bool TargetIsFirst = QueueArea->IsFirstPoint(WaitPoint);
@@ -46,11 +52,12 @@ EBTNodeResult::Type UBTT_GetQueuePoint::ExecuteTask(UBehaviorTreeComponent& Owne
 			return EBTNodeResult::Succeeded;
 		}
 	}
-	else
-	{
+	else*/
+	//{
 		// No this is the first target
 		Customer->WaitPoint = WaitPoint;
 		Customer->WaitPoint->IsAvailable = false;
+		Customer->WaitPoint->CurrentCustomer = Customer;
 		const FVector TargetPoint = WaitPoint->PointLocation; // Get the new spots location
 		const int32 TargetIndex = WaitPoint->PointIndex;
 		const bool TargetIsFirst = QueueArea->IsFirstPoint(WaitPoint);
@@ -58,5 +65,5 @@ EBTNodeResult::Type UBTT_GetQueuePoint::ExecuteTask(UBehaviorTreeComponent& Owne
 		OwnerComp.GetBlackboardComponent()->SetValueAsVector(TargetPointKey.SelectedKeyName, TargetPoint);
 		OwnerComp.GetBlackboardComponent()->SetValueAsInt(QueueTargetIndexKey.SelectedKeyName, TargetIndex);
 		return EBTNodeResult::Succeeded;
-	}
+	//}
 }

@@ -7,6 +7,7 @@
 #include "AI/PentosAIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Character/PentosCustomerCharacter.h"
+#include "Kismet/GameplayStatics.h"
 
 UBTT_SetCurrentTable::UBTT_SetCurrentTable()
 {
@@ -19,17 +20,40 @@ EBTNodeResult::Type UBTT_SetCurrentTable::ExecuteTask(UBehaviorTreeComponent& Ow
 	APentosCustomerCharacter* Customer = Cast<APentosCustomerCharacter>(AIController->GetPawn());
 	if (!Customer) return EBTNodeResult::Failed;
 
-	ATableActor* TableActor = Cast<ATableActor>(AIController->GetBlackboardComponent()->GetValueAsObject("ClosestTableActor"));
+	//ATableActor* TableActor = Cast<ATableActor>(AIController->GetBlackboardComponent()->GetValueAsObject("ClosestTableActor"));
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), TableClass, TableActors);
+	GetAvailableTableActors();
 
-	if (TableActor && TableActor->IsAvailable)
+	if (AvailableTableActors.Num() > 0)
 	{
-		Customer->CurrentTable = TableActor;
-		AIController->GetBlackboardComponent()->SetValueAsBool("ClosestTableIsAvailable", true);
-		TableActor->IsAvailable = false;
-		return EBTNodeResult::Succeeded;
+		ATableActor* AvilableTableActor = Cast<ATableActor>(AvailableTableActors[FMath::RandRange(0, AvailableTableActors.Num() - 1)]);
+
+		if (AvilableTableActor)
+		{
+			Customer->CurrentTable = AvilableTableActor;
+			AIController->GetBlackboardComponent()->SetValueAsObject("ClosestTableActor", AvilableTableActor);
+			AvilableTableActor->IsAvailable = false;
+			return EBTNodeResult::Succeeded;
+		}
+		else
+		{
+			return EBTNodeResult::Failed;
+		}
 	}
 	else
 	{
 		return EBTNodeResult::Failed;
+	}
+}
+
+void UBTT_SetCurrentTable::GetAvailableTableActors()
+{
+	for (AActor* Actor : TableActors)
+	{
+		ATableActor* TableActor = Cast<ATableActor>(Actor);
+		if (TableActor->IsAvailable)
+		{
+			AvailableTableActors.Add(TableActor);
+		}
 	}
 }

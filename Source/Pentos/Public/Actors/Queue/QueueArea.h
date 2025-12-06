@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "QueueArea.generated.h"
 
+class APentosCustomerCharacter;
 struct FSplinePoint;
 class USplineComponent;
 
@@ -19,6 +20,9 @@ struct FWaitPoint
 	
 	UPROPERTY(VisibleAnywhere)
 	int32 PointIndex = 99;
+
+	UPROPERTY(VisibleAnywhere)
+	APentosCustomerCharacter* CurrentCustomer = nullptr;
 	
 	UPROPERTY(VisibleAnywhere)
 	bool IsAvailable = true;
@@ -43,7 +47,7 @@ public:
 	bool IsFirstPoint(const FWaitPoint* WaitPoint);
 	bool IsAvailable(const FWaitPoint* WaitPoint);
 	void LeaveQueue(FWaitPoint* WaitPoint);
-	
+	void MoveQueue();
 	
 	TArray<FWaitPoint*> WaitPoints;
 };

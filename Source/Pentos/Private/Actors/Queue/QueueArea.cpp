@@ -2,7 +2,12 @@
 
 
 #include "Actors/Queue/QueueArea.h"
+
+#include "AI/CustomerAIComponent.h"
+#include "AI/PentosAIController.h"
+#include "Character/PentosCustomerCharacter.h"
 #include "Components/SplineComponent.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 // Only one queue in each level. Should this be a singleton?
 AQueueArea::AQueueArea()
@@ -29,6 +34,7 @@ void AQueueArea::FillWaitPoints()
 		WaitPoint->PointLocation = QueueSpline->GetLocationAtSplinePoint(i,ESplineCoordinateSpace::World);
 		WaitPoint->PointIndex = i;
 		WaitPoint->IsAvailable = true;
+		WaitPoint->CurrentCustomer = nullptr;
 		WaitPoints.Insert(WaitPoint, i);
 	}
 }
@@ -37,6 +43,8 @@ FWaitPoint* AQueueArea::GetFirstAvailableWaitPoint()
 {
 	for (FWaitPoint* WaitPoint : WaitPoints)
 	{
+		//if (WaitPoint->CurrentCustomer)
+			//UE_LOG(LogTemp, Warning, TEXT("WaitPoint %i, Current Customer: %s, IsAvailable: %i"), WaitPoint->PointIndex, *WaitPoint->CurrentCustomer->GetName(), WaitPoint->IsAvailable);
 		if (WaitPoint->IsAvailable)
 		{
 			return WaitPoint;
@@ -57,5 +65,29 @@ bool AQueueArea::IsAvailable(const FWaitPoint* WaitPoint)
 
 void AQueueArea::LeaveQueue(FWaitPoint* WaitPoint)
 {
+	if (!IsFirstPoint(WaitPoint)) return;
 	WaitPoint->IsAvailable = true;
+	WaitPoint->CurrentCustomer = nullptr;
+}
+
+void AQueueArea::MoveQueue()
+{
+	for (int32 i = 0; i < WaitPoints.Num()-1; i++)
+	{
+		if (i == 0)
+		{
+			LeaveQueue(WaitPoints[i]); //First moves out of queue
+			continue;
+		}
+		if (WaitPoints[i]->CurrentCustomer == nullptr) continue;
+		WaitPoints[i]->CurrentCustomer->WaitPoint = nullptr;
+		WaitPoints[i-1]->CurrentCustomer = WaitPoints[i]->CurrentCustomer;
+		WaitPoints[i]->CurrentCustomer = nullptr;
+		WaitPoints[i-1]->CurrentCustomer->WaitPoint = WaitPoints[i-1];
+		WaitPoints[i-1]->IsAvailable = false;
+		WaitPoints[i]->IsAvailable = true;
+		WaitPoints[i-1]->CurrentCustomer->CustomerAI->MoveCustomerTo(WaitPoints[i-1]->PointLocation);
+		//WaitPoints[i-1]->CurrentCustomer->PentosAIController->GetBlackboardComponent()->SetValueAsVector("QueueTarget", WaitPoints[i-1]->PointLocation);
+		//WaitPoints[i-1]->CurrentCustomer->PentosAIController->GetBlackboardComponent()->SetValueAsBool("IsFirst", IsFirstPoint(WaitPoints[i-1]));
+	}
 }

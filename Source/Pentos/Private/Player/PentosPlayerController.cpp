@@ -126,13 +126,51 @@ void APentosPlayerController::PerformTraceLine()
 	
 	FHitResult HitResult;
 	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params, FCollisionResponseParams());
-	//DrawDebugLine(GetWorld(),Start,End, FColor::Red, false, 0.1f, 0, 0.1f);
-	if (!HitResult.bBlockingHit)
+	Params.AddIgnoredActor(PlayerCharacter);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, Params, FCollisionResponseParams());
+	if (!bHit || !HitResult.GetActor())
 	{
+		if (ThisActor)
+		{
+			ThisActor->UnHighlightActor();
+			ThisActor->DeactivateInteractMessage();
+		}
+
 		ThisActor = nullptr;
+		return;
 	}
+
+	if (!HitResult.GetActor()->Implements<UInteractInterface>())
+	{
+		if (ThisActor)
+		{
+			ThisActor->UnHighlightActor();
+			ThisActor->DeactivateInteractMessage();
+		}
+
+		ThisActor = nullptr;
+		return;
+	}
+
+	LastActor = ThisActor;
+	ThisActor.SetObject(HitResult.GetActor());
+	ThisActor.SetInterface(Cast<IInteractInterface>(HitResult.GetActor()));
+	
+	if (LastActor.GetObject() != ThisActor.GetObject())
+	{
+		if (LastActor)
+		{
+			LastActor->UnHighlightActor();
+			LastActor->DeactivateInteractMessage();
+		}
+		if (ThisActor)
+		{
+			ThisActor->HighlightActor();
+			ThisActor->ActivateInteractMessage();
+		}
+	}
+	
+	/*
 	else
 	{
 		LastActor = ThisActor;
@@ -153,7 +191,7 @@ void APentosPlayerController::PerformTraceLine()
 	 *	E.Last actor is valid && this actor is valid. But last actor == this actor
 	 *		Do nothing.
 	 */
-
+	/*
 	if (LastActor == nullptr)
 	{
 		if (ThisActor != nullptr)
@@ -191,4 +229,5 @@ void APentosPlayerController::PerformTraceLine()
 			}
 		}
 	}
+	*/
 }

@@ -42,11 +42,13 @@ bool ASpawnManager::SpawnActor()
 		SpawnLocation.Y += -BoxBounds.BoxExtent.Y + 2 * BoxBounds.BoxExtent.Y * FMath::FRand();
 		SpawnLocation.Z += -BoxBounds.BoxExtent.Z + 2 * BoxBounds.BoxExtent.Z * FMath::FRand();
 		//Spawn actor
+		if (SpawnedActorNum == SpawnedActorMax) return false;
 		SpawnedActor = Cast<APentosCustomerCharacter>(GetWorld()->SpawnActor(ActorClassToBeSpawned, &SpawnLocation));
 		if (SpawnedActor && SpawnedActor->Controller == nullptr)
 		{
 			SpawnedActor->SpawnDefaultController();  // This triggers PossessedBy()
 		}
+		SpawnedActorNum++;
 	}
 
 	return SpawnedActor != nullptr;

@@ -14,6 +14,11 @@ class PENTOS_API ASpawnManager : public AActor
 	
 public:	
 	ASpawnManager();
+	
+	int32 SpawnedActorNum = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 SpawnedActorMax = 2;
+	
 
 	// Spawn enemy of setted class.
 	UFUNCTION(BlueprintCallable)

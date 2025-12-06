@@ -4,17 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Actors/Order/OrderManager.h"
+#include "Actors/SpawnManager/SpawnManager.h"
 #include "Actors/Queue/QueueArea.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
 #include "Character/PentosCharacterBase.h"
 #include "Interaction/InteractInterface.h"
 #include "PentosCustomerCharacter.generated.h"
 
+class UCustomerAIComponent;
 class ATableActor;
 class UWidgetComponent;
 class UBehaviorTree;
 class APentosAIController;
-class AQueueArea;
 /**
  * 
  */
@@ -41,6 +42,12 @@ public:
 	UPROPERTY(EditAnywhere, Category="Order")
 	TSubclassOf<AOrderManager> OrderManagerClass;
 
+	UPROPERTY(EditAnywhere, Category="Spawn")
+	ASpawnManager* SpawnManager;
+
+	UPROPERTY(EditAnywhere, Category="Spawn")
+	TSubclassOf<ASpawnManager> SpawnManagerClass;
+
 	UPROPERTY(EditAnywhere)
 	ATableActor* CurrentTable = nullptr;
 
@@ -48,6 +55,12 @@ public:
 	FOrder Order;
 
 	FWaitPoint* WaitPoint = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<APentosAIController> PentosAIController;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="AI")
+	UCustomerAIComponent* CustomerAI;
 	
 	/** Interact Interface */
 	virtual void ActivateInteractMessage() override;
@@ -61,9 +74,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="AI")
 	TObjectPtr<UBehaviorTree> BehaviorTree;
-	
-	UPROPERTY()
-	TObjectPtr<APentosAIController> PentosAIController;
 
 	UPROPERTY(EditAnywhere, Category="Blackboard")
 	FBlackboardKeySelector IsServedKey;

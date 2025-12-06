@@ -13,5 +13,7 @@ UCLASS()
 class PENTOS_API APentosGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+public:
+	UFUNCTION(BlueprintCallable)
+	void TravelToMap(FString MapName = FString(TEXT("/Game/Maps/MainLevel")));
 };
